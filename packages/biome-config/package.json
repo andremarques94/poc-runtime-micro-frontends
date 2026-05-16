@@ -1,0 +1,6 @@
+{
+	"name": "@repo/biome-config",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Shared Biome presets (Ultracite); consumed via preset.jsonc + root biome.jsonc"
+}

@@ -1,0 +1,23 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"extends": ["./packages/biome-config/preset.jsonc"],
+	"files": {
+		"includes": [
+			"apps/api/drizzle.config.ts",
+			"apps/api/src/**/*.ts",
+			"apps/checkout-remote/public/index.html",
+			"apps/checkout-remote/src/**/*.{ts,tsx,css}",
+			"apps/checkout-remote/webpack.config.cjs",
+			"apps/web/public/index.html",
+			"apps/web/src/**/*.{ts,tsx,css}",
+			"apps/web/webpack.config.cjs",
+			"packages/**/*.{json,jsonc}",
+			"apps/**/*.md",
+			"biome.jsonc",
+			"package.json",
+			"turbo.json",
+			".vscode/**/*.json",
+			".husky/*"
+		]
+	}
+}

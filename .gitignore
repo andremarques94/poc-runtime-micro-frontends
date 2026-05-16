@@ -4,6 +4,8 @@
 node_modules
 .pnp
 .pnp.js
+package-lock.json
+npm-shrinkwrap.json
 
 # Local env files
 .env
@@ -36,3 +38,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# SQLite (local API database)
+apps/api/data/
+.pnpm-store/

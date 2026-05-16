@@ -1,5 +1,5 @@
 {
-	"name": "web",
+	"name": "checkout-remote",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -10,14 +10,13 @@
 		"preview": "webpack serve --config webpack.config.cjs --mode production"
 	},
 	"dependencies": {
-		"@module-federation/enhanced": "^2.4.0",
-		"@tanstack/react-query": "^5.100.10",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"single-spa": "^6.0.3",
-		"zod": "^3.25.76"
+		"single-spa-react": "^6.0.2"
 	},
 	"devDependencies": {
+		"@module-federation/enhanced": "^2.4.0",
 		"@repo/typescript-config": "workspace:*",
 		"@types/react": "19.2.2",
 		"@types/react-dom": "19.2.2",

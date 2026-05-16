@@ -1,159 +1,52 @@
-# Turborepo starter
+# ds-remote
 
-This Turborepo starter is maintained by the Turborepo core team.
+Turborepo monorepo with a **Module Federation + single-spa shell** (`web`), a **`checkout-remote`** federated micro-app, a **Hono + Drizzle** catalog API, shared configs, and **Biome** (Ultracite) for lint/format.
 
-## Using this example
+Lint runs once at the workspace root via a **Turborepo root task** ([Biome + Turborepo](https://turborepo.dev/docs/guides/tools/biome)), not per app.
 
-Run the following command:
+## Apps and packages
+
+- `web`: Federation shell — **Webpack 5** + React + **single-spa** (`pnpm dev` → port **5173**; proxies `/api/*` to the API)
+- `checkout-remote`: Federated remote `checkout` — exposes **`./lifecycles`** (single-spa-react) via **Module Federation** (`pnpm dev` → port **5174**)
+- `api`: Hono + SQLite + Drizzle catalog ([`/mf/remotes`](apps/api/README.md); `pnpm dev` → port **3000**)
+- `@repo/typescript-config`: shared `tsconfig` bases
+- `@repo/biome-config`: shared Biome preset (`ultracite/biome/*` in [`preset.jsonc`](packages/biome-config/preset.jsonc)), extended by root [`biome.jsonc`](biome.jsonc)
+
+## Commands
+
+From the repo root:
 
 ```sh
-npx create-turbo@latest
+pnpm install
+pnpm --filter api db:seed   # checkout → /mf-checkout/remoteEntry.js (proxied via shell :5173)
+pnpm dev                    # runs api + web + checkout-remote (Turbo)
+pnpm build
+pnpm lint
+pnpm lint:fix
+pnpm check-types
+pnpm fix
 ```
 
-## What's inside?
+## Architecture
 
-This Turborepo includes the following packages/apps:
+1. **API catalog** lists remotes (`remoteEntryUrl`, `scope`, `exposedModule`).
+2. **Module Federation** (`@module-federation/enhanced`) loads `remoteEntry.js` and the exposed module (e.g. `checkout/lifecycles`).
+3. **single-spa** registers each remote’s `bootstrap` / `mount` / `unmount` and mounts into `#<scope>-mfe-root` in the shell UI.
 
-### Apps and Packages
+## Develop
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Run **`pnpm dev`** from the root to start **api** (3000), **web** (5173), and **checkout-remote** (5174) together.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+After seeding, open **`http://localhost:5173/`** — the shell shows the catalog JSON and mounts the checkout remote when port **5174** is up.
 
 ```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
 pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
+pnpm exec turbo dev --filter=api
+pnpm exec turbo dev --filter=checkout-remote
 ```
 
 ## Useful Links
 
-Learn more about the power of Turborepo:
-
 - [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
 - [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
 - [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
