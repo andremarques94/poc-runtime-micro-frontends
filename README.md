@@ -27,6 +27,24 @@ pnpm check-types
 pnpm fix
 ```
 
+## Containers
+
+Production images are built from the root [`Dockerfile`](Dockerfile):
+
+- `api`: compiled Hono API on port **3000** with `SQLITE_PATH=/data/app.db`.
+- `web`: nginx on port **8080**, serving the shell at `/`, the checkout remote at `/mf-checkout/`, and proxying `/api/*`.
+
+Run the production-like stack locally:
+
+```sh
+docker compose run --rm --build api-seed
+docker compose up --build
+```
+
+Then open **`http://localhost:8080/`**. The one-shot seed command populates `/api/mf/remotes` without wiping the persistent volume on every API restart.
+
+See [`deploy/README.md`](deploy/README.md) for the Docker/nginx routing layout and the future Postgres path.
+
 ## Architecture
 
 1. **API catalog** lists remotes (`remoteEntryUrl`, `scope`, `exposedModule`).

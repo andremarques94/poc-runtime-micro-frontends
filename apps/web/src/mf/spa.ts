@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { type CatalogRemote, catalogRemotesResponseSchema } from "api/catalog";
+import { useEffect } from "react";
 import { registerApplication, start, triggerAppChange } from "single-spa";
 
 import { loadRemoteLifecycles, registerCatalogRemote } from "./host";
@@ -23,6 +24,7 @@ function registerCatalogApps(remotes: CatalogRemote[]): void {
 		registerApplication({
 			name: remote.scope,
 			app: () => loadRemoteLifecycles(remote.scope, remote.exposedModule),
+			// This demo shell mounts every enabled catalog app into its named bay.
 			activeWhen: () => true,
 		});
 	}
@@ -36,20 +38,31 @@ function ensureSingleSpaStarted(): void {
 	triggerAppChange();
 }
 
+function syncCatalogWithSingleSpa(remotes: CatalogRemote[]): void {
+	registerCatalogApps(remotes);
+	ensureSingleSpaStarted();
+}
+
 async function fetchCatalogRemotes(): Promise<CatalogRemote[]> {
 	const response = await fetch("/api/mf/remotes");
 	if (!response.ok) {
 		throw new Error(`catalog HTTP ${response.status}`);
 	}
 	const { remotes } = catalogRemotesResponseSchema.parse(await response.json());
-	registerCatalogApps(remotes);
-	ensureSingleSpaStarted();
 	return remotes;
 }
 
 export function useCatalog() {
-	return useQuery({
+	const catalogQuery = useQuery({
 		queryKey: ["mf", "remotes"],
 		queryFn: fetchCatalogRemotes,
 	});
+
+	useEffect(() => {
+		if (catalogQuery.data) {
+			syncCatalogWithSingleSpa(catalogQuery.data);
+		}
+	}, [catalogQuery.data]);
+
+	return catalogQuery;
 }

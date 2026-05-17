@@ -3,9 +3,9 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 
 import {
-	catalogRemoteResponseSchema,
+	type CatalogRemoteResponse,
+	type CatalogRemotesResponse,
 	catalogRemoteSchema,
-	catalogRemotesResponseSchema,
 	slugParamSchema,
 } from "../catalog.js";
 import { db } from "../db/client.js";
@@ -20,7 +20,8 @@ mfApp.get("/remotes", (c) => {
 		.where(eq(microFrontends.enabled, true))
 		.all();
 	const remotes = rows.map((row) => catalogRemoteSchema.parse(row));
-	return c.json(catalogRemotesResponseSchema.parse({ remotes }));
+	const response: CatalogRemotesResponse = { remotes };
+	return c.json(response);
 });
 
 mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
@@ -34,5 +35,6 @@ mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
 		return c.notFound();
 	}
 	const remote = catalogRemoteSchema.parse(row);
-	return c.json(catalogRemoteResponseSchema.parse({ remote }));
+	const response: CatalogRemoteResponse = { remote };
+	return c.json(response);
 });

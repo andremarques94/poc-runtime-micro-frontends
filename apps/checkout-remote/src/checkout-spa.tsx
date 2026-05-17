@@ -2,8 +2,10 @@ import React from "react";
 import ReactDOMClient from "react-dom/client";
 import singleSpaReact from "single-spa-react";
 
-import App from "./App";
+import App from "./app";
 import "./remote.css";
+
+const shellMountPointId = "checkout-mfe-root";
 
 const { bootstrap, mount, unmount } = singleSpaReact({
 	React,
@@ -17,9 +19,9 @@ const { bootstrap, mount, unmount } = singleSpaReact({
 		);
 	},
 	domElementGetter() {
-		const el = document.getElementById("checkout-mfe-root");
+		const el = document.getElementById(shellMountPointId);
 		if (!el) {
-			throw new Error("Mount point #checkout-mfe-root not found");
+			throw new Error(`Mount point #${shellMountPointId} not found`);
 		}
 		return el;
 	},
