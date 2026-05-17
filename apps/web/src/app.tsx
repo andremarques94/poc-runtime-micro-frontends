@@ -4,6 +4,31 @@ import { mountPointId, useCatalog } from "./mf/spa";
 
 const checkoutMountId = mountPointId("checkout");
 
+function shellStatusPill(
+	isPending: boolean,
+	error: Error | null,
+): {
+	className: string;
+	label: string;
+} {
+	if (isPending) {
+		return {
+			className: "shell-status__pill shell-status__pill--pending",
+			label: "linking",
+		};
+	}
+	if (error) {
+		return {
+			className: "shell-status__pill shell-status__pill--error",
+			label: "fault",
+		};
+	}
+	return {
+		className: "shell-status__pill shell-status__pill--ok",
+		label: "online",
+	};
+}
+
 function CatalogPanel({
 	error,
 	isPending,
@@ -70,6 +95,7 @@ function CatalogPanel({
 
 export default function App() {
 	const { data: remotes = [], error, isPending, isSuccess } = useCatalog();
+	const status = shellStatusPill(isPending, error);
 
 	return (
 		<div className="shell">
@@ -80,17 +106,7 @@ export default function App() {
 					<h1 className="shell-brand__title">ds-remote</h1>
 				</div>
 				<div className="shell-status">
-					<span
-						className={
-							isPending
-								? "shell-status__pill shell-status__pill--pending"
-								: error
-									? "shell-status__pill shell-status__pill--error"
-									: "shell-status__pill shell-status__pill--ok"
-						}
-					>
-						{isPending ? "linking" : error ? "fault" : "online"}
-					</span>
+					<span className={status.className}>{status.label}</span>
 					{isSuccess ? (
 						<span className="shell-status__meta">
 							{remotes.length} remote{remotes.length === 1 ? "" : "s"}

@@ -15,7 +15,7 @@ module.exports = {
 		clean: true,
 		filename: "[name].[contenthash].js",
 		path: path.resolve(__dirname, "dist"),
-		publicPath: "auto",
+		publicPath: process.env.WEBPACK_PUBLIC_PATH ?? "auto",
 	},
 	resolve: {
 		alias: {

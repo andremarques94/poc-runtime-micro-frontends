@@ -13,14 +13,20 @@ import { microFrontends } from "../db/schema.js";
 
 export const mfApp = new Hono();
 
-mfApp.get("/remotes", (c) => {
-	const rows = db
+function enabledRemotesRows() {
+	return db
 		.select()
 		.from(microFrontends)
 		.where(eq(microFrontends.enabled, true))
 		.all();
-	const remotes = rows.map((row) => catalogRemoteSchema.parse(row));
-	return c.json(catalogRemotesResponseSchema.parse({ remotes }));
+}
+
+mfApp.get("/remotes", (c) => {
+	const remotes = enabledRemotesRows().map((row) =>
+		catalogRemoteSchema.parse(row),
+	);
+	const body = catalogRemotesResponseSchema.parse({ remotes });
+	return c.json(body);
 });
 
 mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
@@ -34,5 +40,6 @@ mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
 		return c.notFound();
 	}
 	const remote = catalogRemoteSchema.parse(row);
-	return c.json(catalogRemoteResponseSchema.parse({ remote }));
+	const body = catalogRemoteResponseSchema.parse({ remote });
+	return c.json(body);
 });

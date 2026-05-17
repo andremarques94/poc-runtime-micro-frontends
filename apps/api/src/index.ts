@@ -1,19 +1,11 @@
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
 
-import { db } from "./db/client.js";
-import { migrateLegacyCheckoutRemoteUrl } from "./db/migrate-catalog.js";
-import { runMigrations } from "./db/run-migrations.js";
-import { mfApp } from "./routes/mf.js";
+import { prepareDatabase } from "./bootstrap.js";
+import { createApiApp } from "./create-app.js";
 
-runMigrations(db);
-migrateLegacyCheckoutRemoteUrl();
+prepareDatabase();
 
-const app = new Hono();
-
-app.get("/health", (c) => c.json({ ok: true }));
-app.route("/mf", mfApp);
-
+const app = createApiApp();
 const port = Number(process.env.PORT ?? 3000);
 
 serve(

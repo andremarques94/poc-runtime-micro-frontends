@@ -1,0 +1,29 @@
+services:
+	api:
+		build:
+			context: ..
+			dockerfile: docker/Dockerfile
+			target: api
+		environment:
+			PORT: "3000"
+			SQLITE_PATH: /data/app.db
+			AUTO_SEED: "1"
+		expose:
+			- "3000"
+		volumes:
+			- api-data:/data
+		restart: unless-stopped
+
+	edge:
+		build:
+			context: ..
+			dockerfile: docker/Dockerfile
+			target: nginx
+		depends_on:
+			- api
+		ports:
+			- "8080:80"
+		restart: unless-stopped
+
+volumes:
+	api-data:

@@ -27,6 +27,10 @@ pnpm check-types
 pnpm fix
 ```
 
+## Docker
+
+Nginx serves the built shell and checkout remote, and proxies `/api` to the Hono service. See [`docker/README.md`](docker/README.md) for `docker compose` usage and how this maps to ECS-style deployments.
+
 ## Architecture
 
 1. **API catalog** lists remotes (`remoteEntryUrl`, `scope`, `exposedModule`).

@@ -149,9 +149,9 @@ Standard commands are in the root `package.json` and `README.md`. Key ones:
 - **Build**: `pnpm build`
 - **Dev**: `pnpm dev`
 
-### Known issues on Linux (case-sensitive filesystems)
+### Linux (case-sensitive filesystems)
 
-The files `apps/web/src/app.tsx` and `apps/checkout-remote/src/app.tsx` are lowercase, but imports in `main.tsx`, `bootstrap.tsx`, and `checkout-spa.tsx` reference `./App` (uppercase). This works on macOS (case-insensitive) but causes webpack/tsc compilation errors on Linux. The API (`apps/api`) is unaffected and works correctly on all platforms.
+Imports use `./app` to match the lowercase `app.tsx` filenames so builds work on Linux. The API (`apps/api`) is unaffected.
 
 ### Pre-commit hooks
 
