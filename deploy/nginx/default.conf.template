@@ -26,12 +26,11 @@ server {
 	}
 
 	location = /mf-checkout/remoteEntry.js {
-		alias /usr/share/nginx/html/mf-checkout/remoteEntry.js;
+		try_files /mf-checkout/remoteEntry.js =404;
 		add_header Cache-Control "no-store";
 	}
 
 	location /mf-checkout/ {
-		alias /usr/share/nginx/html/mf-checkout/;
 		try_files $uri $uri/ /mf-checkout/index.html;
 	}
 
