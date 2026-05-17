@@ -41,7 +41,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 CMD ["node", "dist/index.js"]
 
 FROM nginx:1.27-alpine AS web
-COPY deploy/nginx/default.conf /etc/nginx/conf.d/default.conf
+ENV API_UPSTREAM="api:3000"
+COPY deploy/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 COPY --from=build /app/apps/checkout-remote/dist /usr/share/nginx/html/mf-checkout
 

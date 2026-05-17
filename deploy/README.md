@@ -3,7 +3,7 @@
 This repo builds two production images from the root `Dockerfile`:
 
 - `api`: Node 22 image that runs the compiled Hono API on port `3000`.
-- `web`: nginx image that serves the shell at `/`, serves the checkout remote from `/mf-checkout/`, and proxies `/api/*` to the API container.
+- `web`: nginx image that serves the shell at `/`, serves the checkout remote from `/mf-checkout/`, and proxies `/api/*` to `API_UPSTREAM`.
 
 ## Local production smoke
 
@@ -44,3 +44,5 @@ docker build --target web -t ds-remote-web .
 ```
 
 Run nginx as the public service. It owns the browser-facing origin and forwards `/api/*` to the API target group, matching the local compose topology and the dev server proxy paths.
+
+Set `API_UPSTREAM` to the API service DNS name, Cloud Map name, or internal ALB host and port, such as `api.internal:3000`.
