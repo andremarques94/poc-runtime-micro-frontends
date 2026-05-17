@@ -8,10 +8,11 @@ This repo builds two production images from the root `Dockerfile`:
 ## Local production smoke
 
 ```sh
+docker compose run --rm --build api-seed
 docker compose up --build
 ```
 
-Open `http://localhost:8080/`. The compose file seeds a local SQLite volume before starting the API so the shell can load `/api/mf/remotes` immediately.
+Open `http://localhost:8080/`. The one-shot seed command populates the local SQLite volume so the shell can load `/api/mf/remotes` immediately. Re-run it only when you want to reset the demo catalog data.
 
 Useful checks:
 
@@ -36,6 +37,7 @@ Run the API as its own ECS Fargate service behind an internal target group. Set:
 - an EFS mount at `/data` if SQLite remains the backing store
 
 `deploy/ecs/api-task-definition.example.json` mirrors that runtime shape. SQLite should stay single-writer; move the catalog to a managed database before scaling the API service beyond one task.
+Replace `<git-sha-or-version>` in the task definition with the exact image tag or digest produced by CI.
 
 Build and push the nginx image with the `web` target:
 

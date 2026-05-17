@@ -109,10 +109,12 @@ function CatalogPanel({
 }
 
 function MountBays({ remotes }: { remotes: CatalogRemote[] }) {
+	const uniqueScopes = new Set<string>();
+	for (const { scope } of remotes) {
+		uniqueScopes.add(scope);
+	}
 	const mountScopes =
-		remotes.length > 0
-			? remotes.map((remote) => remote.scope)
-			: [fallbackMountScope];
+		uniqueScopes.size > 0 ? [...uniqueScopes] : [fallbackMountScope];
 
 	return (
 		<>

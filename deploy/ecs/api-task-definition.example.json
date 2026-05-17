@@ -9,7 +9,7 @@
   "containerDefinitions": [
     {
       "name": "api",
-      "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/ds-remote-api:latest",
+      "image": "<account-id>.dkr.ecr.<region>.amazonaws.com/ds-remote-api:<git-sha-or-version>",
       "essential": true,
       "portMappings": [
         {

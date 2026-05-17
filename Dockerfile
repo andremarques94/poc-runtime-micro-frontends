@@ -30,12 +30,14 @@ ENV PORT="3000"
 ENV SQLITE_PATH="/data/app.db"
 WORKDIR /app/apps/api
 
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/apps/api/package.json ./package.json
-COPY --from=build /app/apps/api/dist ./dist
-COPY --from=build /app/apps/api/drizzle ./drizzle
+RUN mkdir -p /data && chown -R node:node /app /data
+COPY --chown=node:node --from=build /app/node_modules /app/node_modules
+COPY --chown=node:node --from=build /app/apps/api/package.json ./package.json
+COPY --chown=node:node --from=build /app/apps/api/dist ./dist
+COPY --chown=node:node --from=build /app/apps/api/drizzle ./drizzle
 
 EXPOSE 3000
+USER node
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 	CMD node -e "fetch('http://127.0.0.1:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "dist/index.js"]
@@ -45,7 +47,10 @@ ENV API_UPSTREAM="api:3000"
 COPY deploy/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 COPY --from=build /app/apps/checkout-remote/dist /usr/share/nginx/html/mf-checkout
+RUN touch /var/run/nginx.pid \
+	&& chown -R nginx:nginx /etc/nginx/conf.d /etc/nginx/templates /usr/share/nginx/html /var/cache/nginx /var/run/nginx.pid
 
 EXPOSE 8080
+USER nginx
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 	CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1

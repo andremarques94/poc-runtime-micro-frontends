@@ -1,4 +1,15 @@
 services:
+  api-seed:
+    profiles: ["seed"]
+    build:
+      context: .
+      target: api
+    environment:
+      SQLITE_PATH: /data/app.db
+    volumes:
+      - api-data:/data
+    command: ["node", "dist/scripts/seed.js"]
+
   api:
     build:
       context: .

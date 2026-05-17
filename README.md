@@ -37,10 +37,11 @@ Production images are built from the root [`Dockerfile`](Dockerfile):
 Run the production-like stack locally:
 
 ```sh
+docker compose run --rm --build api-seed
 docker compose up --build
 ```
 
-Then open **`http://localhost:8080/`**. The API container is seeded in compose so `/api/mf/remotes` returns the checkout remote immediately.
+Then open **`http://localhost:8080/`**. The one-shot seed command populates `/api/mf/remotes` without wiping the persistent volume on every API restart.
 
 See [`deploy/README.md`](deploy/README.md) for ECS notes and the nginx routing layout.
 
