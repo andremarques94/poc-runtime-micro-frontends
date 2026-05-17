@@ -9,3 +9,5 @@ node_modules
 *.log
 coverage
 tmp
+apps/api/data/app.db
+apps/**/data/*.db
