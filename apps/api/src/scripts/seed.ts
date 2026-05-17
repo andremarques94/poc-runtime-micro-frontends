@@ -21,5 +21,3 @@ db.insert(microFrontends)
 		},
 	])
 	.run();
-
-console.log("Seeded micro_frontends table.");

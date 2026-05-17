@@ -27,11 +27,37 @@ pnpm check-types
 pnpm fix
 ```
 
+## Containerized runtime (Nginx edge + API)
+
+Run the production-style containers from the repo root:
+
+```sh
+docker compose build
+docker compose up -d
+docker compose exec api node dist/scripts/seed.js
+```
+
+Then open `http://localhost:8080`.
+
+Container layout:
+
+- `edge` (`docker/nginx.Dockerfile`) builds `web` + `checkout-remote`, serves static files with `nginx`, and handles SPA fallback.
+- `api` (`docker/api.Dockerfile`) runs the built Hono app on port `3000`.
+- Nginx proxies `/api/*` to API (stripping `/api`) and serves checkout remote assets at `/mf-checkout/*`.
+
 ## Architecture
 
 1. **API catalog** lists remotes (`remoteEntryUrl`, `scope`, `exposedModule`).
 2. **Module Federation** (`@module-federation/enhanced`) loads `remoteEntry.js` and the exposed module (e.g. `checkout/lifecycles`).
 3. **single-spa** registers each remote’s `bootstrap` / `mount` / `unmount` and mounts into `#<scope>-mfe-root` in the shell UI.
+
+## ECS-shaped API deployment
+
+`deploy/ecs/api-task-definition.json` is a template task definition for Fargate-style deployment:
+
+- Keeps the same API runtime contract as local Docker (`PORT`, `SQLITE_PATH`, `/health`).
+- Uses an EFS mount for SQLite persistence so runtime behavior matches ECS better than ephemeral container storage.
+- Keeps startup behavior in-container (`node dist/index.js`) so local and ECS container entrypoints stay aligned.
 
 ## Develop
 

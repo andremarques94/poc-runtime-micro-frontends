@@ -3,16 +3,15 @@ import type { CatalogRemote } from "api/catalog";
 import { mountPointId, useCatalog } from "./mf/spa";
 
 const checkoutMountId = mountPointId("checkout");
+type ShellStatus = "linking" | "fault" | "online";
 
-function CatalogPanel({
-	error,
-	isPending,
-	remotes,
-}: {
+type CatalogPanelProps = {
 	error: Error | null;
 	isPending: boolean;
 	remotes: CatalogRemote[];
-}) {
+};
+
+function CatalogPanel({ error, isPending, remotes }: CatalogPanelProps) {
 	if (error) {
 		return <p className="shell-alert shell-alert--error">{error.message}</p>;
 	}
@@ -68,8 +67,44 @@ function CatalogPanel({
 	);
 }
 
+function getShellStatus(error: Error | null, isPending: boolean): ShellStatus {
+	if (isPending) {
+		return "linking";
+	}
+
+	if (error) {
+		return "fault";
+	}
+
+	return "online";
+}
+
+function assertNever(value: never): never {
+	throw new Error(`Unhandled status: ${value}`);
+}
+
+function getShellStatusClassName(status: ShellStatus): string {
+	switch (status) {
+		case "linking":
+			return "shell-status__pill shell-status__pill--pending";
+		case "fault":
+			return "shell-status__pill shell-status__pill--error";
+		case "online":
+			return "shell-status__pill shell-status__pill--ok";
+		default:
+			return assertNever(status);
+	}
+}
+
+function getRemoteCountLabel(remoteCount: number): string {
+	const suffix = remoteCount === 1 ? "" : "s";
+	return `${remoteCount} remote${suffix}`;
+}
+
 export default function App() {
 	const { data: remotes = [], error, isPending, isSuccess } = useCatalog();
+	const shellStatus = getShellStatus(error, isPending);
+	const shellStatusClassName = getShellStatusClassName(shellStatus);
 
 	return (
 		<div className="shell">
@@ -80,20 +115,10 @@ export default function App() {
 					<h1 className="shell-brand__title">ds-remote</h1>
 				</div>
 				<div className="shell-status">
-					<span
-						className={
-							isPending
-								? "shell-status__pill shell-status__pill--pending"
-								: error
-									? "shell-status__pill shell-status__pill--error"
-									: "shell-status__pill shell-status__pill--ok"
-						}
-					>
-						{isPending ? "linking" : error ? "fault" : "online"}
-					</span>
+					<span className={shellStatusClassName}>{shellStatus}</span>
 					{isSuccess ? (
 						<span className="shell-status__meta">
-							{remotes.length} remote{remotes.length === 1 ? "" : "s"}
+							{getRemoteCountLabel(remotes.length)}
 						</span>
 					) : null}
 				</div>

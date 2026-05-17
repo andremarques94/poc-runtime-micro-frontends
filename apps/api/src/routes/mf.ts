@@ -4,7 +4,6 @@ import { Hono } from "hono";
 
 import {
 	catalogRemoteResponseSchema,
-	catalogRemoteSchema,
 	catalogRemotesResponseSchema,
 	slugParamSchema,
 } from "../catalog.js";
@@ -14,13 +13,13 @@ import { microFrontends } from "../db/schema.js";
 export const mfApp = new Hono();
 
 mfApp.get("/remotes", (c) => {
-	const rows = db
+	const remotes = db
 		.select()
 		.from(microFrontends)
 		.where(eq(microFrontends.enabled, true))
 		.all();
-	const remotes = rows.map((row) => catalogRemoteSchema.parse(row));
-	return c.json(catalogRemotesResponseSchema.parse({ remotes }));
+	const payload = catalogRemotesResponseSchema.parse({ remotes });
+	return c.json(payload);
 });
 
 mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
@@ -33,6 +32,6 @@ mfApp.get("/remotes/:slug", zValidator("param", slugParamSchema), (c) => {
 	if (!row) {
 		return c.notFound();
 	}
-	const remote = catalogRemoteSchema.parse(row);
-	return c.json(catalogRemoteResponseSchema.parse({ remote }));
+	const payload = catalogRemoteResponseSchema.parse({ remote: row });
+	return c.json(payload);
 });

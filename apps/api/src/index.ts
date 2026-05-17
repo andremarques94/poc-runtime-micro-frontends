@@ -16,12 +16,7 @@ app.route("/mf", mfApp);
 
 const port = Number(process.env.PORT ?? 3000);
 
-serve(
-	{
-		fetch: app.fetch,
-		port,
-	},
-	(info) => {
-		console.log(`API listening on http://localhost:${info.port}`);
-	},
-);
+serve({
+	fetch: app.fetch,
+	port,
+});

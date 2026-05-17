@@ -7,7 +7,8 @@ import { loadRemoteLifecycles, registerCatalogRemote } from "./host";
 export type { CatalogRemote };
 
 const registeredScopes = new Set<string>();
-let started = false;
+const catalogQueryKey = ["mf", "remotes"] as const;
+let singleSpaStarted = false;
 
 export function mountPointId(scope: string): string {
 	return `${scope}-mfe-root`;
@@ -29,27 +30,36 @@ function registerCatalogApps(remotes: CatalogRemote[]): void {
 }
 
 function ensureSingleSpaStarted(): void {
-	if (!started) {
-		started = true;
+	if (!singleSpaStarted) {
+		singleSpaStarted = true;
 		start();
 	}
 	triggerAppChange();
 }
 
-async function fetchCatalogRemotes(): Promise<CatalogRemote[]> {
+async function readCatalogRemotes(): Promise<CatalogRemote[]> {
 	const response = await fetch("/api/mf/remotes");
 	if (!response.ok) {
 		throw new Error(`catalog HTTP ${response.status}`);
 	}
 	const { remotes } = catalogRemotesResponseSchema.parse(await response.json());
+	return remotes;
+}
+
+function syncCatalogRemotes(remotes: CatalogRemote[]): void {
 	registerCatalogApps(remotes);
 	ensureSingleSpaStarted();
+}
+
+async function fetchCatalogRemotes(): Promise<CatalogRemote[]> {
+	const remotes = await readCatalogRemotes();
+	syncCatalogRemotes(remotes);
 	return remotes;
 }
 
 export function useCatalog() {
 	return useQuery({
-		queryKey: ["mf", "remotes"],
+		queryKey: catalogQueryKey,
 		queryFn: fetchCatalogRemotes,
 	});
 }
