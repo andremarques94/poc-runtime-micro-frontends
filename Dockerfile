@@ -24,6 +24,9 @@ FROM deps AS build
 COPY . .
 RUN pnpm build
 
+FROM build AS api-prod
+RUN pnpm --filter api deploy --prod /prod/api
+
 FROM node:22-bookworm-slim AS api
 ENV NODE_ENV="production"
 ENV PORT="3000"
@@ -31,7 +34,7 @@ ENV SQLITE_PATH="/data/app.db"
 WORKDIR /app/apps/api
 
 RUN mkdir -p /data && chown -R node:node /app /data
-COPY --chown=node:node --from=build /app/node_modules /app/node_modules
+COPY --chown=node:node --from=api-prod /prod/api/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/apps/api/package.json ./package.json
 COPY --chown=node:node --from=build /app/apps/api/dist ./dist
 COPY --chown=node:node --from=build /app/apps/api/drizzle ./drizzle
