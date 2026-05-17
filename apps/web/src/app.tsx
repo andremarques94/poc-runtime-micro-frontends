@@ -2,7 +2,70 @@ import type { CatalogRemote } from "api/catalog";
 
 import { mountPointId, useCatalog } from "./mf/spa";
 
-const checkoutMountId = mountPointId("checkout");
+const fallbackMountScope = "checkout";
+
+type ShellStatus = {
+	className: string;
+	label: string;
+};
+
+function getShellStatus({
+	error,
+	isPending,
+}: {
+	error: Error | null;
+	isPending: boolean;
+}): ShellStatus {
+	if (isPending) {
+		return {
+			className: "shell-status__pill shell-status__pill--pending",
+			label: "linking",
+		};
+	}
+
+	if (error) {
+		return {
+			className: "shell-status__pill shell-status__pill--error",
+			label: "fault",
+		};
+	}
+
+	return {
+		className: "shell-status__pill shell-status__pill--ok",
+		label: "online",
+	};
+}
+
+function remoteCountLabel(count: number): string {
+	return `${count} remote${count === 1 ? "" : "s"}`;
+}
+
+function CatalogItem({ remote }: { remote: CatalogRemote }) {
+	const statusClassName = remote.enabled
+		? "catalog-item__status catalog-item__status--live"
+		: "catalog-item__status";
+
+	return (
+		<li className="catalog-item">
+			<div className="catalog-item__head">
+				<span className="catalog-item__slug">{remote.slug}</span>
+				<span className={statusClassName}>
+					{remote.enabled ? "live" : "off"}
+				</span>
+			</div>
+			<dl className="catalog-item__meta">
+				<div>
+					<dt>scope</dt>
+					<dd>{remote.scope}</dd>
+				</div>
+				<div>
+					<dt>entry</dt>
+					<dd>{remote.remoteEntryUrl}</dd>
+				</div>
+			</dl>
+		</li>
+	);
+}
 
 function CatalogPanel({
 	error,
@@ -34,30 +97,7 @@ function CatalogPanel({
 		<>
 			<ul className="catalog-list">
 				{remotes.map((remote) => (
-					<li className="catalog-item" key={remote.slug}>
-						<div className="catalog-item__head">
-							<span className="catalog-item__slug">{remote.slug}</span>
-							<span
-								className={
-									remote.enabled
-										? "catalog-item__status catalog-item__status--live"
-										: "catalog-item__status"
-								}
-							>
-								{remote.enabled ? "live" : "off"}
-							</span>
-						</div>
-						<dl className="catalog-item__meta">
-							<div>
-								<dt>scope</dt>
-								<dd>{remote.scope}</dd>
-							</div>
-							<div>
-								<dt>entry</dt>
-								<dd>{remote.remoteEntryUrl}</dd>
-							</div>
-						</dl>
-					</li>
+					<CatalogItem key={remote.slug} remote={remote} />
 				))}
 			</ul>
 			<details className="catalog-raw">
@@ -68,8 +108,27 @@ function CatalogPanel({
 	);
 }
 
+function MountBays({ remotes }: { remotes: CatalogRemote[] }) {
+	const mountScopes =
+		remotes.length > 0
+			? remotes.map((remote) => remote.scope)
+			: [fallbackMountScope];
+
+	return (
+		<>
+			<p className="shell-muted mount-bay__hint">
+				Remote lifecycles attach below when the catalog resolves.
+			</p>
+			{mountScopes.map((scope) => (
+				<div className="mount-bay" id={mountPointId(scope)} key={scope} />
+			))}
+		</>
+	);
+}
+
 export default function App() {
 	const { data: remotes = [], error, isPending, isSuccess } = useCatalog();
+	const shellStatus = getShellStatus({ error, isPending });
 
 	return (
 		<div className="shell">
@@ -80,20 +139,10 @@ export default function App() {
 					<h1 className="shell-brand__title">ds-remote</h1>
 				</div>
 				<div className="shell-status">
-					<span
-						className={
-							isPending
-								? "shell-status__pill shell-status__pill--pending"
-								: error
-									? "shell-status__pill shell-status__pill--error"
-									: "shell-status__pill shell-status__pill--ok"
-						}
-					>
-						{isPending ? "linking" : error ? "fault" : "online"}
-					</span>
+					<span className={shellStatus.className}>{shellStatus.label}</span>
 					{isSuccess ? (
 						<span className="shell-status__meta">
-							{remotes.length} remote{remotes.length === 1 ? "" : "s"}
+							{remoteCountLabel(remotes.length)}
 						</span>
 					) : null}
 				</div>
@@ -120,10 +169,7 @@ export default function App() {
 						<h2 className="panel__title">Mount bay</h2>
 					</header>
 					<div className="panel__body panel__body--mount">
-						<p className="shell-muted mount-bay__hint">
-							Remote lifecycles attach below when the catalog resolves.
-						</p>
-						<div className="mount-bay" id={checkoutMountId} />
+						<MountBays remotes={remotes} />
 					</div>
 				</section>
 			</div>

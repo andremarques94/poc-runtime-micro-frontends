@@ -28,3 +28,7 @@ export const catalogRemoteResponseSchema = z.object({
 });
 
 export type CatalogRemote = z.infer<typeof catalogRemoteSchema>;
+export type CatalogRemoteResponse = z.infer<typeof catalogRemoteResponseSchema>;
+export type CatalogRemotesResponse = z.infer<
+	typeof catalogRemotesResponseSchema
+>;
