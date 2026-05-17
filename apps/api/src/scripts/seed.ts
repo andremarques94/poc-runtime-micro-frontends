@@ -19,6 +19,17 @@ db.insert(microFrontends)
 			enabled: true,
 			metadata: {},
 		},
+		{
+			slug: "registry",
+			remoteEntryUrl: "/mf-registry/remoteEntry.js",
+			scope: "registry",
+			exposedModule: "./lifecycles",
+			routeBasePath: "/registry",
+			displayName: "MFE Registry",
+			version: "1.0.0",
+			enabled: true,
+			metadata: {},
+		},
 	])
 	.run();
 

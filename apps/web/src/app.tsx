@@ -171,6 +171,12 @@ export default function App() {
 						<h2 className="panel__title">Mount bay</h2>
 					</header>
 					<div className="panel__body panel__body--mount">
+						{remotes.some((r) => r.scope === "registry") ? (
+							<p className="shell-muted mount-bay__hint">
+								Open the <strong>registry</strong> bay below to register new
+								remotes.
+							</p>
+						) : null}
 						<MountBays remotes={remotes} />
 					</div>
 				</section>

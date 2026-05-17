@@ -1,9 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { type CatalogRemote, catalogRemotesResponseSchema } from "api/catalog";
 import { useEffect } from "react";
 import { registerApplication, start, triggerAppChange } from "single-spa";
 
 import { loadRemoteLifecycles, registerCatalogRemote } from "./host";
+
+export const MF_CATALOG_CHANGED = "mf-catalog-changed";
 
 export type { CatalogRemote };
 
@@ -53,10 +55,21 @@ async function fetchCatalogRemotes(): Promise<CatalogRemote[]> {
 }
 
 export function useCatalog() {
+	const queryClient = useQueryClient();
 	const catalogQuery = useQuery({
 		queryKey: ["mf", "remotes"],
 		queryFn: fetchCatalogRemotes,
 	});
+
+	useEffect(() => {
+		const onCatalogChanged = () => {
+			void queryClient.invalidateQueries({ queryKey: ["mf", "remotes"] });
+		};
+		window.addEventListener(MF_CATALOG_CHANGED, onCatalogChanged);
+		return () => {
+			window.removeEventListener(MF_CATALOG_CHANGED, onCatalogChanged);
+		};
+	}, [queryClient]);
 
 	useEffect(() => {
 		if (catalogQuery.data) {

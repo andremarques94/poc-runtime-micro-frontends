@@ -126,17 +126,18 @@ Most formatting and common issues are automatically fixed by Biome. Run `pnpm dl
 
 ### Architecture
 
-Turborepo monorepo with three apps and two shared packages. See `README.md` for the full list and port assignments.
+Turborepo monorepo with four apps and two shared packages. See `README.md` for the full list and port assignments.
 
 | App | Port | Purpose |
 |---|---|---|
 | `api` | 3000 | Hono + Drizzle + SQLite catalog API |
-| `web` | 5173 | Webpack 5 shell host (proxies `/api` → :3000, `/mf-checkout` → :5174) |
+| `web` | 5173 | Webpack 5 shell host (proxies `/api` → :3000, `/mf-checkout` → :5174, `/mf-registry` → :5175) |
 | `checkout-remote` | 5174 | Module Federation remote micro-app |
+| `registry-remote` | 5175 | MFE registry studio (POST catalog, list remotes) |
 
 ### Running services
 
-- `pnpm dev` starts all three apps concurrently via Turborepo (interactive TUI).
+- `pnpm dev` starts all four apps concurrently via Turborepo (interactive TUI).
 - First-time setup requires seeding the database: `pnpm --filter api db:seed`.
 - The SQLite database file lives at `apps/api/data/app.db` (auto-created by seed script; no external DB server needed).
 

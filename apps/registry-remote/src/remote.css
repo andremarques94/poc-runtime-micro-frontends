@@ -1,0 +1,233 @@
+:root {
+	--registry-bg: rgb(18 14 10 / 0.72);
+	--registry-border: rgb(201 162 93 / 0.45);
+	--registry-accent: #c9a25d;
+	--registry-accent-dim: rgb(201 162 93 / 0.12);
+	--registry-text: #f0e6d6;
+	--registry-muted: #9a8b78;
+	--registry-error: #e07a6a;
+	--registry-success: #7eb87a;
+	--font-display: "DM Serif Display", Georgia, serif;
+	--font-mono: "JetBrains Mono", "Consolas", monospace;
+}
+
+.registry-studio {
+	box-sizing: border-box;
+	padding: 1.15rem 1.2rem 1rem;
+	border: 1px solid var(--registry-border);
+	border-radius: 2px;
+	background:
+		radial-gradient(
+			ellipse 120% 80% at 100% 0%,
+			var(--registry-accent-dim),
+			transparent 55%
+		),
+		var(--registry-bg);
+	color: var(--registry-text);
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	animation: registry-enter 0.55s ease-out both;
+}
+
+.registry-studio__masthead {
+	margin-bottom: 1rem;
+	padding-bottom: 0.85rem;
+	border-bottom: 1px solid rgb(201 162 93 / 0.22);
+}
+
+.registry-studio__kicker {
+	margin: 0 0 0.2rem;
+	font-size: 0.6rem;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var(--registry-muted);
+}
+
+.registry-studio__title {
+	margin: 0 0 0.45rem;
+	font-family: var(--font-display);
+	font-size: 1.55rem;
+	font-weight: 400;
+	font-style: italic;
+	color: var(--registry-accent);
+}
+
+.registry-studio__lede {
+	margin: 0;
+	max-width: 42ch;
+	color: var(--registry-muted);
+}
+
+.registry-studio__lede code {
+	padding: 0.08rem 0.3rem;
+	font-size: 0.88em;
+	color: var(--registry-text);
+	background: rgb(0 0 0 / 0.35);
+	border-radius: 2px;
+}
+
+.registry-studio__grid {
+	display: grid;
+	gap: 1rem;
+}
+
+@media (min-width: 640px) {
+	.registry-studio__grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.registry-panel__title {
+	margin: 0 0 0.75rem;
+	font-family: var(--font-display);
+	font-size: 1rem;
+	font-weight: 400;
+	color: var(--registry-text);
+}
+
+.registry-form {
+	display: grid;
+	gap: 0.65rem;
+}
+
+.registry-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.registry-field--wide {
+	grid-column: 1 / -1;
+}
+
+.registry-field span {
+	font-size: 0.62rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--registry-muted);
+}
+
+.registry-field small {
+	font-size: 0.65rem;
+	color: var(--registry-muted);
+	opacity: 0.85;
+}
+
+.registry-field input,
+.registry-field textarea {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0.45rem 0.5rem;
+	font-family: inherit;
+	font-size: inherit;
+	color: var(--registry-text);
+	background: rgb(0 0 0 / 0.35);
+	border: 1px solid rgb(201 162 93 / 0.25);
+	border-radius: 2px;
+}
+
+.registry-field input:focus,
+.registry-field textarea:focus {
+	outline: 1px solid var(--registry-accent);
+	border-color: var(--registry-accent);
+}
+
+.registry-form__submit {
+	justify-self: start;
+	margin-top: 0.25rem;
+	padding: 0.5rem 0.85rem;
+	font-family: inherit;
+	font-size: 0.7rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: rgb(18 14 10);
+	background: var(--registry-accent);
+	border: none;
+	border-radius: 2px;
+	cursor: pointer;
+}
+
+.registry-form__submit:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.registry-form__error {
+	margin: 0;
+	color: var(--registry-error);
+}
+
+.registry-form__success {
+	margin: 0;
+	color: var(--registry-success);
+}
+
+.registry-catalog {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.registry-catalog__item {
+	padding: 0.55rem 0;
+	border-bottom: 1px solid rgb(201 162 93 / 0.15);
+}
+
+.registry-catalog__item:last-child {
+	border-bottom: none;
+}
+
+.registry-catalog__head {
+	display: flex;
+	justify-content: space-between;
+	gap: 0.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.registry-catalog__slug {
+	font-weight: 500;
+	color: var(--registry-accent);
+}
+
+.registry-catalog__scope {
+	font-size: 0.7rem;
+	color: var(--registry-muted);
+}
+
+.registry-catalog__entry {
+	margin: 0;
+	font-size: 0.72rem;
+	color: var(--registry-muted);
+	word-break: break-all;
+}
+
+.registry-catalog__status {
+	margin: 0;
+	color: var(--registry-muted);
+}
+
+.remote-error {
+	padding: 1rem;
+	border: 1px solid rgb(224 122 106 / 0.45);
+	border-radius: 2px;
+	background: rgb(224 122 106 / 0.1);
+	color: var(--registry-error);
+	font-family: var(--font-mono);
+}
+
+.remote-error-title {
+	margin: 0;
+	font-weight: 600;
+}
+
+@keyframes registry-enter {
+	from {
+		opacity: 0;
+		transform: translateY(6px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

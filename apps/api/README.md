@@ -29,6 +29,7 @@ On **`pnpm dev`** / **`pnpm start`**, the server runs **`runMigrations`**, then 
 
 - **`GET /mf/remotes`** — enabled remotes (JSON `{ remotes: [...] }`).
 - **`GET /mf/remotes/:slug`** — one enabled remote (`{ remote: {...} }`) or **404**.
+- **`POST /mf/remotes`** — register a remote (`{ remote: {...} }`, **201**) or **409** if slug/scope exists.
 
 With the shell’s **webpack-dev-server** proxy, the browser calls **`http://localhost:5173/api/mf/remotes`** (rewritten to **`/mf/remotes`** on this API).
 

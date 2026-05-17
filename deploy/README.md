@@ -1,16 +1,30 @@
 # Container deployment
 
-This repo builds two production images from the root `Dockerfile`:
+This repo builds four production images from the root `Dockerfile`:
 
 - `api`: Node 22 image that runs the compiled Hono API on port `3000`.
-- `web`: nginx image that serves the shell at `/`, serves the checkout remote from `/mf-checkout/`, and proxies `/api/*` to `API_UPSTREAM`.
+- `checkout`: nginx image that serves the checkout micro frontend at `/` on port `8080`.
+- `registry`: nginx image that serves the registry micro frontend at `/` on port `8080`.
+- `web`: nginx image that serves the shell at `/`, proxies `/mf-checkout/*` and `/mf-registry/*`, and proxies `/api/*` to `API_UPSTREAM`.
 
-The nginx image is the browser-facing container. It serves both static bundles from disk:
+The `web` container is the browser-facing entry point. It routes traffic to the other two services:
 
-| Bundle | Route | Files |
+| Route | Handled by | Env var |
 | --- | --- | --- |
-| Shell | `/` | `apps/web/dist` |
-| Checkout micro frontend | `/mf-checkout/` | `apps/checkout-remote/dist` |
+| `/` | shell static files (`apps/web/dist`) | — |
+| `/mf-checkout/*` | `checkout` nginx container | `CHECKOUT_UPSTREAM` |
+| `/mf-registry/*` | `registry` nginx container | `REGISTRY_UPSTREAM` |
+| `/api/*` | `api` Node container | `API_UPSTREAM` |
+
+The checkout micro frontend runs in its own container so it can be moved to a separate repository in the future — only the `CHECKOUT_UPSTREAM` value needs to change.
+
+Each app owns its nginx configuration:
+
+| App | nginx config |
+| --- | --- |
+| Shell | `apps/web/nginx/default.conf.template` |
+| Checkout | `apps/checkout-remote/nginx/default.conf.template` |
+| Registry | `apps/registry-remote/nginx/default.conf.template` |
 
 ## Local production smoke
 
@@ -27,20 +41,18 @@ Useful checks:
 curl http://localhost:8080/health
 curl http://localhost:8080/api/mf/remotes
 curl -I http://localhost:8080/mf-checkout/remoteEntry.js
+curl -I http://localhost:8080/mf-registry/remoteEntry.js
+curl http://localhost:8081/health   # checkout container directly
+curl http://localhost:8082/health   # registry container directly
 ```
 
 ## Image targets
 
-Build the API image with the `api` target:
-
 ```sh
-docker build --target api -t ds-remote-api .
-```
-
-Build the nginx/static image with the `web` target:
-
-```sh
-docker build --target web -t ds-remote-web .
+docker build --target api      -t ds-remote-api      .
+docker build --target checkout -t ds-remote-checkout .
+docker build --target registry -t ds-remote-registry .
+docker build --target web      -t ds-remote-web      .
 ```
 
 ## API serving pattern

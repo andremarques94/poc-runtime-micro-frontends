@@ -119,6 +119,64 @@ importers:
         specifier: ^5.2.2
         version: 5.2.4(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.106.2)
 
+  apps/registry-remote:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: ^5.100.10
+        version: 5.100.10(react@19.2.0)
+      react:
+        specifier: ^19.2.0
+        version: 19.2.0
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.0(react@19.2.0)
+      single-spa:
+        specifier: ^6.0.3
+        version: 6.0.3
+      single-spa-react:
+        specifier: ^6.0.2
+        version: 6.0.2(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react@19.2.0)
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@module-federation/enhanced':
+        specifier: ^2.4.0
+        version: 2.4.0(@rspack/core@1.7.11)(typescript@5.9.2)(webpack@5.106.2(postcss@8.5.14)(webpack-cli@6.0.1))
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/react':
+        specifier: 19.2.2
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: 19.2.2
+        version: 19.2.2(@types/react@19.2.2)
+      css-loader:
+        specifier: ^7.1.2
+        version: 7.1.4(@rspack/core@1.7.11)(webpack@5.106.2(postcss@8.5.14)(webpack-cli@6.0.1))
+      html-webpack-plugin:
+        specifier: ^5.6.3
+        version: 5.6.7(@rspack/core@1.7.11)(webpack@5.106.2(postcss@8.5.14)(webpack-cli@6.0.1))
+      style-loader:
+        specifier: ^4.0.0
+        version: 4.0.0(webpack@5.106.2(postcss@8.5.14)(webpack-cli@6.0.1))
+      ts-loader:
+        specifier: ^9.5.2
+        version: 9.5.7(typescript@5.9.2)(webpack@5.106.2(postcss@8.5.14)(webpack-cli@6.0.1))
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+      webpack:
+        specifier: ^5.99.9
+        version: 5.106.2(postcss@8.5.14)(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: ^6.0.1
+        version: 6.0.1(webpack-dev-server@5.2.4)(webpack@5.106.2)
+      webpack-dev-server:
+        specifier: ^5.2.2
+        version: 5.2.4(tslib@2.8.1)(webpack-cli@6.0.1)(webpack@5.106.2)
+
   apps/web:
     dependencies:
       '@module-federation/enhanced':

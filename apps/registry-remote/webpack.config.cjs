@@ -8,7 +8,7 @@ const mfConfig = require("./module-federation.config.cjs");
 /** @type {import("webpack").Configuration} */
 module.exports = {
 	context: __dirname,
-	entry: "./src/main.tsx",
+	entry: "./src/index.ts",
 	mode: process.env.NODE_ENV === "production" ? "production" : "development",
 	devtool: "eval-source-map",
 	output: {
@@ -53,26 +53,18 @@ module.exports = {
 		}),
 	],
 	devServer: {
-		port: 5173,
+		port: 5175,
 		historyApiFallback: true,
 		hot: true,
+		headers: {
+			"Access-Control-Allow-Origin": "*",
+			"Access-Control-Allow-Methods": "GET, OPTIONS",
+		},
 		proxy: [
 			{
 				context: ["/api"],
 				target: "http://localhost:3000",
 				pathRewrite: { "^/api": "" },
-				changeOrigin: true,
-			},
-			{
-				context: ["/mf-checkout"],
-				target: "http://localhost:5174",
-				pathRewrite: { "^/mf-checkout": "" },
-				changeOrigin: true,
-			},
-			{
-				context: ["/mf-registry"],
-				target: "http://localhost:5175",
-				pathRewrite: { "^/mf-registry": "" },
 				changeOrigin: true,
 			},
 		],
