@@ -121,3 +121,38 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 ---
 
 Most formatting and common issues are automatically fixed by Biome. Run `pnpm dlx ultracite fix` before committing to ensure compliance.
+
+## Cursor Cloud specific instructions
+
+### Architecture
+
+Turborepo monorepo with three apps and two shared packages. See `README.md` for the full list and port assignments.
+
+| App | Port | Purpose |
+|---|---|---|
+| `api` | 3000 | Hono + Drizzle + SQLite catalog API |
+| `web` | 5173 | Webpack 5 shell host (proxies `/api` → :3000, `/mf-checkout` → :5174) |
+| `checkout-remote` | 5174 | Module Federation remote micro-app |
+
+### Running services
+
+- `pnpm dev` starts all three apps concurrently via Turborepo (interactive TUI).
+- First-time setup requires seeding the database: `pnpm --filter api db:seed`.
+- The SQLite database file lives at `apps/api/data/app.db` (auto-created by seed script; no external DB server needed).
+
+### Commands reference
+
+Standard commands are in the root `package.json` and `README.md`. Key ones:
+- **Lint**: `pnpm lint` (runs Biome via Turborepo root task)
+- **Fix lint/format**: `pnpm fix` or `pnpm dlx ultracite fix`
+- **Type check**: `pnpm check-types`
+- **Build**: `pnpm build`
+- **Dev**: `pnpm dev`
+
+### Known issues on Linux (case-sensitive filesystems)
+
+The files `apps/web/src/app.tsx` and `apps/checkout-remote/src/app.tsx` are lowercase, but imports in `main.tsx`, `bootstrap.tsx`, and `checkout-spa.tsx` reference `./App` (uppercase). This works on macOS (case-insensitive) but causes webpack/tsc compilation errors on Linux. The API (`apps/api`) is unaffected and works correctly on all platforms.
+
+### Pre-commit hooks
+
+Husky runs `lint-staged` on commit, which applies `pnpm dlx ultracite fix` to staged files. This runs automatically — no manual setup needed.
