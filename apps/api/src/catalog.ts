@@ -8,9 +8,17 @@ export const slugParamSchema = z.object({
 });
 
 export const createCatalogRemoteSchema = z.object({
-	slug: z.string().min(1).max(128).regex(slugPattern),
-	scope: z.string().min(1).max(128),
-	remoteEntryUrl: z.string().min(1),
+	slug: z.string().trim().min(1).max(128).regex(slugPattern),
+	scope: z.string().trim().min(1).max(128).regex(slugPattern),
+	remoteEntryUrl: z
+		.string()
+		.trim()
+		.min(1)
+		.refine(
+			(value) =>
+				value.startsWith("/") || /^https?:\/\/[^\s]+$/i.test(value),
+			"remoteEntryUrl must be an absolute path or http(s) URL",
+		),
 	exposedModule: z.string().default("./lifecycles"),
 	routeBasePath: z.string().nullable().optional(),
 	displayName: z.string().nullable().optional(),

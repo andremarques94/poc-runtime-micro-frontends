@@ -16,37 +16,46 @@ export const mfApp = new Hono();
 
 mfApp.post("/remotes", zValidator("json", createCatalogRemoteSchema), (c) => {
 	const body = c.req.valid("json");
-	const conflict = db
-		.select({ slug: microFrontends.slug })
-		.from(microFrontends)
-		.where(
-			or(
-				eq(microFrontends.slug, body.slug),
-				eq(microFrontends.scope, body.scope),
-			),
-		)
-		.get();
 
-	if (conflict) {
+	let conflictFound = false;
+	db.transaction((tx) => {
+		const conflict = tx
+			.select({ slug: microFrontends.slug })
+			.from(microFrontends)
+			.where(
+				or(
+					eq(microFrontends.slug, body.slug),
+					eq(microFrontends.scope, body.scope),
+				),
+			)
+			.get();
+
+		if (conflict) {
+			conflictFound = true;
+			return;
+		}
+
+		tx.insert(microFrontends)
+			.values({
+				slug: body.slug,
+				scope: body.scope,
+				remoteEntryUrl: body.remoteEntryUrl,
+				exposedModule: body.exposedModule,
+				routeBasePath: body.routeBasePath ?? null,
+				displayName: body.displayName ?? null,
+				version: body.version ?? null,
+				enabled: true,
+				metadata: body.metadata,
+			})
+			.run();
+	});
+
+	if (conflictFound) {
 		return c.json(
 			{ error: "A remote with this slug or scope already exists" },
 			409,
 		);
 	}
-
-	db.insert(microFrontends)
-		.values({
-			slug: body.slug,
-			scope: body.scope,
-			remoteEntryUrl: body.remoteEntryUrl,
-			exposedModule: body.exposedModule,
-			routeBasePath: body.routeBasePath ?? null,
-			displayName: body.displayName ?? null,
-			version: body.version ?? null,
-			enabled: true,
-			metadata: body.metadata,
-		})
-		.run();
 
 	const row = db
 		.select()
