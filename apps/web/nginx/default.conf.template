@@ -2,6 +2,14 @@ upstream api_upstream {
 	server ${API_UPSTREAM};
 }
 
+upstream checkout_upstream {
+	server ${CHECKOUT_UPSTREAM};
+}
+
+upstream registry_upstream {
+	server ${REGISTRY_UPSTREAM};
+}
+
 server {
 	listen 8080;
 	server_name _;
@@ -25,13 +33,22 @@ server {
 		proxy_set_header X-Forwarded-Proto $scheme;
 	}
 
-	location = /mf-checkout/remoteEntry.js {
-		try_files /mf-checkout/remoteEntry.js =404;
-		add_header Cache-Control "no-store";
+	location /mf-checkout/ {
+		proxy_pass http://checkout_upstream/;
+		proxy_http_version 1.1;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 	}
 
-	location /mf-checkout/ {
-		try_files $uri $uri/ /mf-checkout/index.html;
+	location /mf-registry/ {
+		proxy_pass http://registry_upstream/;
+		proxy_http_version 1.1;
+		proxy_set_header Connection "";
+		proxy_set_header Host $host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
 	}
 
 	location ~* \.(?:css|js|mjs|map|woff2?)$ {

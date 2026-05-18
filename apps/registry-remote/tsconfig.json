@@ -1,0 +1,11 @@
+{
+	"extends": "@repo/typescript-config/vite-react.json",
+	"compilerOptions": {
+		"strictNullChecks": true,
+		"forceConsistentCasingInFileNames": true,
+		"paths": {
+			"api/*": ["../api/src/*"]
+		}
+	},
+	"include": ["src"]
+}

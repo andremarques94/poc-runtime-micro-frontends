@@ -15,6 +15,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY apps/api/package.json apps/api/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY apps/checkout-remote/package.json apps/checkout-remote/package.json
+COPY apps/registry-remote/package.json apps/registry-remote/package.json
 COPY packages/biome-config/package.json packages/biome-config/package.json
 COPY packages/typescript-config/package.json packages/typescript-config/package.json
 
@@ -45,11 +46,34 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 	CMD node -e "fetch('http://127.0.0.1:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "dist/index.js"]
 
+FROM nginx:1.27-alpine AS checkout
+COPY apps/checkout-remote/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /app/apps/checkout-remote/dist /usr/share/nginx/html
+RUN touch /var/run/nginx.pid \
+	&& chown -R nginx:nginx /etc/nginx/conf.d /etc/nginx/templates /usr/share/nginx/html /var/cache/nginx /var/run/nginx.pid
+
+EXPOSE 8080
+USER nginx
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+	CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1
+
+FROM nginx:1.27-alpine AS registry
+COPY apps/registry-remote/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /app/apps/registry-remote/dist /usr/share/nginx/html
+RUN touch /var/run/nginx.pid \
+	&& chown -R nginx:nginx /etc/nginx/conf.d /etc/nginx/templates /usr/share/nginx/html /var/cache/nginx /var/run/nginx.pid
+
+EXPOSE 8080
+USER nginx
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+	CMD wget -qO- http://127.0.0.1:8080/health >/dev/null || exit 1
+
 FROM nginx:1.27-alpine AS web
 ENV API_UPSTREAM="api:3000"
-COPY deploy/nginx/default.conf.template /etc/nginx/templates/default.conf.template
+ENV CHECKOUT_UPSTREAM="checkout:8080"
+ENV REGISTRY_UPSTREAM="registry:8080"
+COPY apps/web/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
-COPY --from=build /app/apps/checkout-remote/dist /usr/share/nginx/html/mf-checkout
 RUN touch /var/run/nginx.pid \
 	&& chown -R nginx:nginx /etc/nginx/conf.d /etc/nginx/templates /usr/share/nginx/html /var/cache/nginx /var/run/nginx.pid
 
