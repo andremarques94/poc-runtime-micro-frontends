@@ -34,7 +34,8 @@ Production images are built from the root [`Dockerfile`](Dockerfile):
 
 - `api`: compiled Hono API on port **3000** with `SQLITE_PATH=/data/app.db`.
 - `web`: nginx on port **8080**, serving the shell at `/`, remotes at `/mf-checkout/` and `/mf-registry/`, and proxying `/api/*`.
-- `registry`: nginx serving the registry remote (compose port **8082**).
+- `checkout`: nginx on port **8081** serving the checkout remote at `/mf-checkout/`.
+- `registry`: nginx on port **8082** serving the registry remote at `/mf-registry/`.
 
 Run the production-like stack locally:
 

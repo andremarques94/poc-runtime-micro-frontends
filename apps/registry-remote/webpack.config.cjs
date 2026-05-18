@@ -10,7 +10,8 @@ module.exports = {
 	context: __dirname,
 	entry: "./src/index.ts",
 	mode: process.env.NODE_ENV === "production" ? "production" : "development",
-	devtool: "eval-source-map",
+	devtool:
+		process.env.NODE_ENV === "production" ? "source-map" : "eval-source-map",
 	output: {
 		clean: true,
 		filename: "[name].[contenthash].js",

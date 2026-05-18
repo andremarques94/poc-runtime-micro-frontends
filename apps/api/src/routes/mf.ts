@@ -17,25 +17,9 @@ export const mfApp = new Hono();
 mfApp.post("/remotes", zValidator("json", createCatalogRemoteSchema), (c) => {
 	const body = c.req.valid("json");
 
-	let conflictFound = false;
-	db.transaction((tx) => {
-		const conflict = tx
-			.select({ slug: microFrontends.slug })
-			.from(microFrontends)
-			.where(
-				or(
-					eq(microFrontends.slug, body.slug),
-					eq(microFrontends.scope, body.scope),
-				),
-			)
-			.get();
-
-		if (conflict) {
-			conflictFound = true;
-			return;
-		}
-
-		tx.insert(microFrontends)
+	try {
+		const result = db
+			.insert(microFrontends)
 			.values({
 				slug: body.slug,
 				scope: body.scope,
@@ -47,29 +31,25 @@ mfApp.post("/remotes", zValidator("json", createCatalogRemoteSchema), (c) => {
 				enabled: true,
 				metadata: body.metadata,
 			})
-			.run();
-	});
+			.returning()
+			.get();
 
-	if (conflictFound) {
-		return c.json(
-			{ error: "A remote with this slug or scope already exists" },
-			409,
-		);
+		const remote = catalogRemoteSchema.parse(result);
+		const response: CatalogRemoteResponse = { remote };
+		return c.json(response, 201);
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			(error.message.includes("UNIQUE constraint failed") ||
+				error.message.includes("SQLITE_CONSTRAINT"))
+		) {
+			return c.json(
+				{ error: "A remote with this slug or scope already exists" },
+				409,
+			);
+		}
+		throw error;
 	}
-
-	const row = db
-		.select()
-		.from(microFrontends)
-		.where(eq(microFrontends.slug, body.slug))
-		.get();
-
-	if (!row) {
-		return c.json({ error: "Failed to create remote" }, 500);
-	}
-
-	const remote = catalogRemoteSchema.parse(row);
-	const response: CatalogRemoteResponse = { remote };
-	return c.json(response, 201);
 });
 
 mfApp.get("/remotes", (c) => {

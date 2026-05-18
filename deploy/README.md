@@ -7,7 +7,7 @@ This repo builds four production images from the root `Dockerfile`:
 - `registry`: nginx image that serves the registry micro frontend at `/` on port `8080`.
 - `web`: nginx image that serves the shell at `/`, proxies `/mf-checkout/*` and `/mf-registry/*`, and proxies `/api/*` to `API_UPSTREAM`.
 
-The `web` container is the browser-facing entry point. It routes traffic to the other two services:
+The `web` container is the browser-facing entry point. It routes traffic to three backend services: `checkout`, `registry`, and `api`:
 
 | Route | Handled by | Env var |
 | --- | --- | --- |
